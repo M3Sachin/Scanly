@@ -36,7 +36,7 @@ Everything runs in your browser. There is no server storing your codes, no accou
 | ⚡ **Live preview** | Type and watch it render. No "generate" button. |
 | 🌗 **Warm light + dark** | A real cream-and-terracotta palette, not an inverted dark theme. Follows your OS. |
 | 📄 **Document import** | Drop a `.txt`, `.md`, `.pdf` or `.docx` — the text is extracted in-browser and encoded. |
-| 📦 **Big file support** | A QR can't hold a PDF, so Scanly uploads it and encodes the link, with a lifetime you pick. |
+| 📦 **Big file support** | A QR can't hold a PDF, so Scanly uploads it (up to 100MB) and encodes the link, with a lifetime you pick. |
 | 🚫 **Zero tracking** | No analytics, no cookies, no account. |
 
 ## 🖼 Frames
@@ -188,10 +188,14 @@ These are real constraints, not bugs:
   (ISO/IEC 18004). Oversized content shows a clear error, and Scanly first drops the error-correction
   level to `L` to fit borderline content before giving up.
 - **Uploaded files are public.** The File tab sends your file to a third-party host
-  ([catbox.moe](https://catbox.moe) or [uguu.se](https://uguu.se)) and anyone who scans the code can
-  download it. This is the **only** place any data leaves your browser, it happens only on an explicit
-  button press, and the UI says so. Don't upload anything private — swap the `FILE_HOSTS` entries for
-  your own storage if you need control.
+  ([tmpfiles.org](https://tmpfiles.org) for ~1 hour, or [gofile.io](https://gofile.io) for no fixed
+  expiry) and anyone who scans the code can download it. This is the **only** place any data leaves
+  your browser, it happens only on an explicit button press, and the UI says so. Don't upload
+  anything private — swap the `FILE_HOSTS` entries for your own storage if you need control.
+- **A replacement host must send CORS headers.** Browsers block reading a cross-origin response
+  without `Access-Control-Allow-Origin`, so an otherwise fine host will fail with a network error
+  from any real origin. Verify with:
+  `curl -sD- -o/dev/null -X POST <url> -H 'Origin: https://you.vercel.app' -F file=@x.txt | grep -i access-control`
 - **Expiry reminders need the tab open.** They use the Notification API with a timer; a reminder that
   survives closing the tab needs a service worker and a backend.
 - **No dynamic QR codes.** Editing a code's destination after printing, and scan analytics, both
